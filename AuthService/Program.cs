@@ -19,7 +19,7 @@ public class Program
         
         // 🔹 Zuerst DbContext registrieren (MUSS vor den Repositories sein!)
         builder.Services.AddDbContext<AppDbContext>(options =>
-            options.UseSqlite("Data Source=app.db"));
+            options.UseSqlite("Data Source=/var/data/app.db"));
         
         // 🔹 Repositories (damit sie in Services verwendet werden können)
         builder.Services.AddScoped<UserRepository>();
@@ -29,8 +29,8 @@ public class Program
         builder.Services.AddScoped<IAuthService, AuthService>(); // AuthService registrieren
         
         // 🔹 JwtService als Scoped Service registrieren
-        var jwtSecret = builder.Configuration["Jwt:Secret"];
-        var jwtExpiration = builder.Configuration["Jwt:ExpirationMinutes"];
+        var jwtSecret = Environment.GetEnvironmentVariable("JWT_SECRET");
+        var jwtExpiration = Environment.GetEnvironmentVariable("JWT_EXPIRATIONMINUTES");
         
         builder.Services.AddScoped<JwtService>(sp =>
         {
@@ -83,7 +83,11 @@ public class Program
         app.UseSwagger();
         app.UseSwaggerUI();
 
+        using (var scope = app.Services.CreateScope())
+        {
+            var db = scope.ServiceProvider.GetRequiredService<AppDbContext>();
+            db.Database.Migrate();
+        }
         app.Run();
-
     }
 }

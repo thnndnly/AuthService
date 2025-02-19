@@ -7,17 +7,21 @@ EXPOSE 8081
 FROM mcr.microsoft.com/dotnet/sdk:9.0 AS build
 ARG BUILD_CONFIGURATION=Release
 WORKDIR /src
-COPY ["ChatCommand/ChatCommand.csproj", "ChatCommand/"]
-RUN dotnet restore "ChatCommand/ChatCommand.csproj"
+COPY ["AuthService/AuthService.csproj", "AuthService/"]
+RUN dotnet restore "AuthService/AuthService.csproj"
 COPY . .
-WORKDIR "/src/ChatCommand"
-RUN dotnet build "ChatCommand.csproj" -c $BUILD_CONFIGURATION -o /app/build
+WORKDIR "/src/AuthService"
+RUN dotnet build "AuthService.csproj" -c $BUILD_CONFIGURATION -o /app/build
 
 FROM build AS publish
 ARG BUILD_CONFIGURATION=Release
-RUN dotnet publish "ChatCommand.csproj" -c $BUILD_CONFIGURATION -o /app/publish /p:UseAppHost=false
+RUN dotnet publish "AuthService.csproj" -c $BUILD_CONFIGURATION -o /app/publish /p:UseAppHost=false
 
 FROM base AS final
 WORKDIR /app
+
+# Erstelle Verzeichnis /var/data und gib Schreibrechte
+RUN mkdir -p /var/data && chmod -R 777 /var/data
+
 COPY --from=publish /app/publish .
-ENTRYPOINT ["dotnet", "ChatCommand.dll"]
+ENTRYPOINT ["dotnet", "AuthService.dll"]

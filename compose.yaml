@@ -1,0 +1,8 @@
+﻿services:
+  authservice:
+    image: authservice
+    build:
+      context: .
+      dockerfile: AuthService/Dockerfile
+    volumes:
+      - chatcommanddata:/var/data
