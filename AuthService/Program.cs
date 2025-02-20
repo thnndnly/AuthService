@@ -19,7 +19,7 @@ public class Program
         
         // 🔹 Zuerst DbContext registrieren (MUSS vor den Repositories sein!)
         builder.Services.AddDbContext<AppDbContext>(options =>
-            options.UseSqlite("Data Source=/var/data/app.db"));
+            options.UseSqlite(builder.Configuration.GetConnectionString("DefaultConnection")));
         
         // 🔹 Repositories (damit sie in Services verwendet werden können)
         builder.Services.AddScoped<UserRepository>();

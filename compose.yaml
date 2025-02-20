@@ -1,8 +1,12 @@
 ﻿services:
   authservice:
-    image: authservice
+    image: authservice:latest
     build:
       context: .
-      dockerfile: AuthService/Dockerfile
-    volumes:
-      - chatcommanddata:/var/data
+      dockerfile: Dockerfile
+    ports:
+      - "8080:8080"
+      - "8081:8081"
+    environment:
+      - JWT_SECRET=${JWT_SECRET}
+      - JWT_EXPIRATIONMINUTES=${JWT_EXPIRATIONMINUTES}
